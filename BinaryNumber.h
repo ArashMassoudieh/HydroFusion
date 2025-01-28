@@ -1,11 +1,12 @@
-#ifndef BINARY_H
-#define BINARY_H
+#ifndef BINARYNUMBER_H
+#define BINARYNUMBER_H
 
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 
 class BinaryNumber {
 private:
@@ -214,4 +215,4 @@ public:
 };
 
 
-#endif // BINARY_H
+#endif // BINARYNUMBER_H
