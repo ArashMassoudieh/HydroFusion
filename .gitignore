@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+HydroFusion/.vs/HydroFusion/FileContentIndex/
+
+HydroFusion/.vs/HydroFusion/v17/
+
+HydroFusion/HydroFusion/x64/Debug/
