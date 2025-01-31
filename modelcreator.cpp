@@ -26,7 +26,7 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
 #endif // Behzad 
 #ifdef Arash_Windows
     system->GetQuanTemplate("../../OpenHydroQual/resources/main_components.json");
-    system->GetQuanTemplate("../../OpenHydroQual/resources/physicsbaseddatadrivenhydrology.json");
+    system->AppendQuanTemplate("../../OpenHydroQual/resources/physicsbaseddatadrivenhydrology.json");
     system->ReadSystemSettingsTemplate("../../OpenHydroQual/resources/settings.json");
 #endif // Window_Arash
 
@@ -66,6 +66,61 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
     edge.SetType("storage_unit_link");
     system->AddLink(edge, "Storage Unit 0", "Downstream boundary", false);
     
+
+    //Parameters
+    for (int i = 0; i < network->getNumberOfNodes(); i++)
+    {
+        Parameter P_Capacity; 
+        P_Capacity.SetQuantities(system, "Parameter");
+        P_Capacity.SetName("P_Capacity_" + QString::number(i).toStdString());
+        P_Capacity.SetType("Parameter");
+        P_Capacity.SetVal("high", "1e+6");
+        P_Capacity.SetVal("low", "1e+4");
+        P_Capacity.SetVal("value", 1e+5);
+        P_Capacity.SetProperty("prior_distribution", "log-normal");
+        system->Parameters().Append(P_Capacity.GetName(), P_Capacity);
+
+        system->SetAsParameter("Storage Unit " + QString::number(i).toStdString(), "Capacity", "P_Capacity_" + QString::number(i).toStdString(),true);
+        
+
+        Parameter P_Initial_Content;
+        P_Initial_Content.SetQuantities(system, "Parameter");
+        P_Initial_Content.SetName("Initial_Content_" + QString::number(i).toStdString());
+        P_Initial_Content.SetType("Parameter");
+        P_Initial_Content.SetVal("high", "0.95");
+        P_Initial_Content.SetVal("low", "0.1");
+        P_Initial_Content.SetVal("value", 0.5);
+        P_Initial_Content.SetProperty("prior_distribution", "log-normal");
+        system->Parameters().Append(P_Initial_Content.GetName(), P_Initial_Content);
+
+        Parameter P_Precip_Factor;
+        P_Precip_Factor.SetQuantities(system, "Parameter");
+        P_Precip_Factor.SetName("Precip_Factor" + QString::number(i).toStdString());
+        P_Precip_Factor.SetType("Parameter");
+        P_Precip_Factor.SetVal("high", "1e+7");
+        P_Precip_Factor.SetVal("low", "1e+5");
+        P_Precip_Factor.SetVal("value", 1e+6);
+        P_Precip_Factor.SetProperty("prior_distribution", "log-normal");
+        system->Parameters().Append(P_Precip_Factor.GetName(), P_Precip_Factor);
+
+        Parameter P_Scale_Factor;
+        P_Scale_Factor.SetQuantities(system, "Parameter");
+        P_Scale_Factor.SetName("Scale_Factor" + QString::number(i).toStdString());
+        P_Scale_Factor.SetType("Parameter");
+        P_Scale_Factor.SetVal("high", "5");
+        P_Scale_Factor.SetVal("low", "0.1");
+        P_Scale_Factor.SetVal("value", 1);
+        P_Scale_Factor.SetProperty("prior_distribution", "log-normal");
+        system->Parameters().Append(P_Scale_Factor.GetName(), P_Scale_Factor);
+
+
+
+
+
+    }
+
+    
+
     /*
     // Observations
     Observation total_inflow;
