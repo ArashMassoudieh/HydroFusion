@@ -20,7 +20,8 @@ networkmodel.displayMatrix(matrix);
 ModelCreator m; 
 m.Create(system, &networkmodel);
 
-system->SavetoScriptFile("C:/Users/arash/Dropbox/Watershed_Modeling/sixnodemodel.ohq");
+//system->SavetoScriptFile("C:/Users/arash/Dropbox/Watershed_Modeling/sixnodemodel.ohq");
+system->SavetoScriptFile("C:/Dropbox/Watershed_Modeling/sixnodemodel.ohq");
 #ifdef Behzad
     string Workingfolder="/home/behzad/Projects/ASM_Models/";
 #else

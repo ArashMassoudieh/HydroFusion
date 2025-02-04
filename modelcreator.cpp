@@ -39,7 +39,8 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
         node.SetType("Storage Unit");
         node.SetVal("x", QRandomGenerator::global()->bounded(2001));
         node.SetVal("y", QRandomGenerator::global()->bounded(2001));
-        node.SetProperty("Precipitation", "C:/Users/arash/Dropbox/Watershed_Modeling/Rain_Watts.csv");
+        node.SetProperty("Precipitation", "C:/Watershed_Modeling/Rain_Watts.csv");
+        //node.SetProperty("Precipitation", "C:/Users/arash/Dropbox/Watershed_Modeling/Rain_Watts.csv");
         system->AddBlock(node, false);
     }
 

@@ -14,6 +14,8 @@ struct model_parameters
 
 class NetworkModel; 
 
+enum class modeltype { hyperbolic, powerlaw };
+
 class ModelCreator
 {
 public:
@@ -23,6 +25,7 @@ public:
     string Workingfolder;
     double Simulation_start_time;
     double Simulation_end_time; 
+    modeltype ModelType = modeltype::powerlaw;
         
 };
 
