@@ -67,7 +67,7 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
     system->AddLink(edge, "Storage Unit 0", "Downstream boundary", false);
     
 
-    //Parameters
+    //Parameters for blocks
     for (int i = 0; i < network->getNumberOfNodes(); i++)
     {
         Parameter P_Capacity; 
@@ -75,7 +75,7 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
         P_Capacity.SetName("P_Capacity_" + QString::number(i).toStdString());
         P_Capacity.SetType("Parameter");
         P_Capacity.SetVal("high", "1e+6");
-        P_Capacity.SetVal("low", "1e+4");
+        P_Capacity.SetVal("low", "5e+3");
         P_Capacity.SetVal("value", 1e+5);
         P_Capacity.SetProperty("prior_distribution", "log-normal");
         system->Parameters().Append(P_Capacity.GetName(), P_Capacity);
@@ -88,82 +88,101 @@ bool ModelCreator::Create(System *system, NetworkModel *network)
         P_Initial_Content.SetName("Initial_Content_" + QString::number(i).toStdString());
         P_Initial_Content.SetType("Parameter");
         P_Initial_Content.SetVal("high", "0.95");
-        P_Initial_Content.SetVal("low", "0.1");
+        P_Initial_Content.SetVal("low", "0.05");
         P_Initial_Content.SetVal("value", 0.5);
         P_Initial_Content.SetProperty("prior_distribution", "log-normal");
         system->Parameters().Append(P_Initial_Content.GetName(), P_Initial_Content);
 
+        system->SetAsParameter("Storage Unit " + QString::number(i).toStdString(), "Initial_Storage_coeff", "Initial_Content_" + QString::number(i).toStdString(), true);
+
         Parameter P_Precip_Factor;
         P_Precip_Factor.SetQuantities(system, "Parameter");
-        P_Precip_Factor.SetName("Precip_Factor" + QString::number(i).toStdString());
+        P_Precip_Factor.SetName("Precip_Factor_" + QString::number(i).toStdString());
         P_Precip_Factor.SetType("Parameter");
         P_Precip_Factor.SetVal("high", "1e+7");
-        P_Precip_Factor.SetVal("low", "1e+5");
+        P_Precip_Factor.SetVal("low", "2e+4");
         P_Precip_Factor.SetVal("value", 1e+6);
         P_Precip_Factor.SetProperty("prior_distribution", "log-normal");
         system->Parameters().Append(P_Precip_Factor.GetName(), P_Precip_Factor);
 
+
+        system->SetAsParameter("Storage Unit " + QString::number(i).toStdString(), "Precipitation_coefficient", "Precip_Factor_" + QString::number(i).toStdString(), true);
+
         Parameter P_Scale_Factor;
         P_Scale_Factor.SetQuantities(system, "Parameter");
-        P_Scale_Factor.SetName("Scale_Factor" + QString::number(i).toStdString());
+        P_Scale_Factor.SetName("Scale_Factor_" + QString::number(i).toStdString());
         P_Scale_Factor.SetType("Parameter");
         P_Scale_Factor.SetVal("high", "5");
-        P_Scale_Factor.SetVal("low", "0.1");
+        P_Scale_Factor.SetVal("low", "0.05");
         P_Scale_Factor.SetVal("value", 1);
         P_Scale_Factor.SetProperty("prior_distribution", "log-normal");
         system->Parameters().Append(P_Scale_Factor.GetName(), P_Scale_Factor);
 
+        system->SetAsParameter("Storage Unit " + QString::number(i).toStdString(), "Scale_factor", "Scale_Factor_" + QString::number(i).toStdString(), true);
 
+    }
 
+    //Parameters for edges
+    for (int i = 0; i < network->getEdges().size(); i++)
+    {
+        Parameter P_Mean_Transmissivity;
+        P_Mean_Transmissivity.SetQuantities(system, "Parameter");
+        P_Mean_Transmissivity.SetName("P_Transmissivity_(" + QString::number(network->getEdges()[i].first).toStdString() + "_" + QString::number(network->getEdges()[i].second).toStdString() + ")");
+        P_Mean_Transmissivity.SetType("Parameter");
+        P_Mean_Transmissivity.SetVal("high", "2e5");
+        P_Mean_Transmissivity.SetVal("low", "100");
+        P_Mean_Transmissivity.SetVal("value", 10000);
+        P_Mean_Transmissivity.SetProperty("prior_distribution", "log-normal");
+        system->Parameters().Append(P_Mean_Transmissivity.GetName(), P_Mean_Transmissivity);
+
+        system->SetAsParameter("edge(" + aquiutils::numbertostring(network->getEdges()[i].first) + "_" + aquiutils::numbertostring(network->getEdges()[i].second) + ")", "Mean_Transmissivity", "P_Transmissivity_(" + QString::number(network->getEdges()[i].first).toStdString() + "_" + QString::number(network->getEdges()[i].second).toStdString() + ")", true);
 
 
     }
 
-    
+    Parameter P_Mean_Transmissivity;
+    P_Mean_Transmissivity.SetQuantities(system, "Parameter");
+    P_Mean_Transmissivity.SetName("P_Transmissivity_(" + QString::number(0).toStdString() + "_ Downstream boundary)");
+    P_Mean_Transmissivity.SetType("Parameter");
+    P_Mean_Transmissivity.SetVal("high", "1e5");
+    P_Mean_Transmissivity.SetVal("low", "100");
+    P_Mean_Transmissivity.SetVal("value", 10000);
+    P_Mean_Transmissivity.SetProperty("prior_distribution", "log-normal");
+    system->Parameters().Append(P_Mean_Transmissivity.GetName(), P_Mean_Transmissivity);
 
-    /*
+    system->SetAsParameter("edge(" + aquiutils::numbertostring(0) + "- Downstream boundary)", "Mean_Transmissivity", "P_Transmissivity_(" + QString::number(0).toStdString() + "_ Downstream boundary)", true);
+
+    Parameter P_Downstream_Latent_Variable;
+    P_Downstream_Latent_Variable.SetQuantities(system, "Parameter");
+    P_Downstream_Latent_Variable.SetName("P_DS_Latent_Variable");
+    P_Downstream_Latent_Variable.SetType("Parameter");
+    P_Downstream_Latent_Variable.SetVal("high", "10");
+    P_Downstream_Latent_Variable.SetVal("low", "-10");
+    P_Downstream_Latent_Variable.SetVal("value", 0);
+    P_Downstream_Latent_Variable.SetProperty("prior_distribution", "normal");
+    system->Parameters().Append(P_Downstream_Latent_Variable.GetName(), P_Downstream_Latent_Variable);
+
+    system->SetAsParameter("Downstream boundary", "Latent_variable", "P_DS_Latent_Variable", true);
+
+
+    
     // Observations
-    Observation total_inflow;
+    Observation StreamFlow;
+    StreamFlow.SetQuantities(system, "Observation");
+    StreamFlow.SetProperty("expression","flow");
+    StreamFlow.SetProperty("object", "edge(" + aquiutils::numbertostring(0) + "- Downstream boundary)");
+    StreamFlow.SetName("StreamFlow");
+    StreamFlow.SetType("Observation");
+    StreamFlow.SetProperty("observed_data", "C:/Users/arash/Dropbox/Watershed_Modeling/Flow_Watts.csv");
+    StreamFlow.SetProperty("error_structure", "log-normal");
+    system->AddObservation(StreamFlow,false);
 
-    total_inflow.SetQuantities(system, "Observation");
-    total_inflow.SetProperty("expression","inflow");
-    total_inflow.SetProperty("object","Reactor (1)");
-    total_inflow.SetName("Inflow");
-    total_inflow.SetType("Observation");
-    system->AddObservation(total_inflow,false);
 
-
-    Observation s_inflow_concentration;
-
-    s_inflow_concentration.SetQuantities(system, "Observation");
-    s_inflow_concentration.SetProperty("expression","Solids:inflow_concentration");
-    s_inflow_concentration.SetProperty("object","Reactor (1)");
-    s_inflow_concentration.SetName("SolidsInflowConcentration");
-    s_inflow_concentration.SetType("Observation");
-    system->AddObservation(s_inflow_concentration,false);
-
-    Observation coagulant_concentration;
-
-    coagulant_concentration.SetQuantities(system, "Observation");
-    coagulant_concentration.SetProperty("expression","Coagulant:external_mass_flow_timeseries");
-    coagulant_concentration.SetProperty("object","Settling element (1)");
-    coagulant_concentration.SetName("Coagulant_Concentration");
-    coagulant_concentration.SetType("Observation");
-    system->AddObservation(coagulant_concentration,false);
-
-    Observation solids_concentration;
-
-    solids_concentration.SetQuantities(system, "Observation");
-    solids_concentration.SetProperty("expression","Solids:concentration");
-    solids_concentration.SetProperty("object","Settling element (1)");
-    solids_concentration.SetName("Solids_Concentration");
-    solids_concentration.SetType("Observation");
-    system->AddObservation(solids_concentration,false);
-    */
-
-    system->SetSettingsParameter("simulation_start_time",Simulation_start_time);
-    system->SetSettingsParameter("simulation_end_time",Simulation_end_time);
     
+    system->SetSettingsParameter("simulation_start_time", 43737.8);
+    system->SetSettingsParameter("simulation_end_time", 43826.8);
+    system->SetSettingsParameter("maximum_time_allowed", 200);
+        
 
     system->SetSystemSettings();
     cout<<"Populate functions"<<endl;
